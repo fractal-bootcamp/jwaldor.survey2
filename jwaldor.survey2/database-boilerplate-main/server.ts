@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import client from "client";
+import cors from "cors";
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
@@ -10,6 +11,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // parse application/json
 app.use(bodyParser.json());
+
+app.use(cors());
 
 app.get("/", async (req: Request, res: Response) => {
   console.log("test hello 2");
@@ -91,32 +94,45 @@ app.get("/survey-questions/:survey_id", async (req: Request, res: Response) => {
   // const questions = await client.block.findMany({
   //   where: { surveyId: req.params.survey_id },include:{},
   // });
-  console.log("survey questions");
-  const blocks = await client.survey.findFirst({ include: { Blocks: true } });
-  console.log(blocks);
-  res.json({ Done: "done" });
-
-  // const blocks = await client.block.findMany({
-  //   where: { surveyId: req.params.survey_id },
+  // console.log("survey questions");
+  // const blockid = ""
+  // const questions = await client.question.findMany(where:{blockId:blockid}})
+  // const blocks = await client.survey.findFirst({
+  //   where: { id: req.params.survey_id },
+  //   select: {
+  //     Blocks: {
+  //       select: {
+  //         Question: true,
+  //       },
+  //     },
+  //   },
   // });
   // console.log(blocks);
+  // console.log(blocks?.Blocks[0].Question[0]);
+  // //{ select: { ordering: true, text: true, id: true } },
+  // res.json({ Done: "done" });
 
-  // blocks.map(async (block) => {
-  //   const questions = await client.question.findMany({
-  //     where: { blockId: req.body.blockId },
-  //   });
-  //   console.log("questions", questions);
-  //   questions.forEach((question) => {
-  //     return {
-  //       block_order: block.ordering,
-  //       ordering: question.ordering,
-  //       question_text: question.text,
-  //       question_id: question.id,
-  //     }
-  //   });
-  // });
-  // console.log("blocked_questions", blocked_questions);
-  // res.json(blocked_questions);
+  const blocks = await client.block.findMany({
+    where: { surveyId: req.params.survey_id },
+  });
+  console.log(blocks);
+
+  blocks.map(async (block) => {
+    const questions = await client.question.findMany({
+      where: { blockId: req.body.blockId },
+    });
+    console.log("questions", questions);
+    questions.forEach((question) => {
+      return {
+        block_order: block.ordering,
+        ordering: question.ordering,
+        question_text: question.text,
+        question_id: question.id,
+      };
+    });
+  });
+  console.log("blocked_questions", blocks);
+  res.json({ blocks });
 });
 
 // app.get("/survey-responses/:survey_id", async (req: Request, res: Response) => {}){
@@ -125,7 +141,20 @@ app.get("/survey-questions/:survey_id", async (req: Request, res: Response) => {
 //   });
 // };
 
-app.delete("/block", async (req: Request, res: Response) => {});
+app.delete("/block/:block_id", async (req: Request, res: Response) => {
+  console.log(req.params.block_id);
+  const deleteQuestions = await client.question.deleteMany({
+    where: {
+      blockId: { equals: req.params.block_id },
+    },
+  });
+  const deleteBlock = await client.block.delete({
+    where: {
+      id: req.params.block_id,
+    },
+  });
+  res.json({ deleteBlock, deleteQuestions });
+});
 
 // app.get("/", (req: Request, res: Response) => {
 //   console.log(`Example app listening on port ${port}`);
