@@ -32,6 +32,22 @@ app.post("/initialize-survey", async (req: Request, res: Response) => {
   res.json({ survey });
 });
 
+app.put("/update-survey-title", async (req: Request, res: Response) => {
+  console.log("blah blah");
+  console.log("req", req);
+  console.log("req.body", req.body);
+  console.log("done");
+  console.log("all", client.survey.findMany());
+  const survey = await client.survey.update({
+    where: {
+      id: req.body.id,
+    },
+    data: { title: req.body.title },
+  });
+
+  res.json({ survey });
+});
+
 app.get("/view-surveys", async (req: Request, res: Response) => {
   console.log("req", req);
   console.log("req.body", req.body);
@@ -58,6 +74,7 @@ app.post("/answer-survey-questions", async (req: Request, res: Response) => {
 });
 
 app.post("/add-block", async (req: Request, res: Response) => {
+  console.log("survey ID", req.body.survey_id);
   const theblock = await client.block.create({
     data: { ordering: req.body.ordering, surveyId: req.body.survey_id },
   });
