@@ -74,6 +74,7 @@ app.post("/answer-survey-questions", async (req: Request, res: Response) => {
 });
 
 app.post("/add-block", async (req: Request, res: Response) => {
+  console.log("survey ID", req.body.survey_id);
   const theblock = await client.block.create({
     data: { ordering: req.body.ordering, surveyId: req.body.survey_id },
   });
