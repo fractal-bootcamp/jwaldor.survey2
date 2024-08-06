@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "express": "^4.19.2",
+    "prisma": "^5.12.1",
+    "typescript": "^5.4.5"
+  },
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "- Docker Desktop: https://docs.docker.com/desktop/ - Postgresql (for `psql`): `brew install postgresql`",
+  "main": "server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.1.0"
+  }
+}
