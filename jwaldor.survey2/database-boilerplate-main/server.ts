@@ -147,11 +147,10 @@ app.get("/survey-questions/:survey_id", async (req: Request, res: Response) => {
     all_questions.Blocks.forEach((block) =>
       block.Question.sort((a, b) => a.ordering - b.ordering)
     );
+    res.json({ all_questions });
   } else {
     res.json({});
   }
-
-  res.json({ all_questions });
 });
 
 // app.get("/survey-responses/:survey_id", async (req: Request, res: Response) => {}){
@@ -172,6 +171,7 @@ app.delete("/block/:block_id", async (req: Request, res: Response) => {
       id: req.params.block_id,
     },
   });
+  console.log("done deleting");
   res.json({ deleteBlock, deleteQuestions });
 });
 
@@ -192,10 +192,10 @@ app.get("/survey-results/:survey_id", async (req: Request, res: Response) => {
         question.Responses.sort((a, b) => a.id.localeCompare(b.id))
       );
     });
+    res.json({ results });
   } else {
     res.json({});
   }
-  res.json({ results });
 });
 
 // app.get("/", (req: Request, res: Response) => {

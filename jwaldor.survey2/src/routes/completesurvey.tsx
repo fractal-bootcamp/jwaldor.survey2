@@ -10,6 +10,7 @@ function CompleteSurvey() {
   const { id } = useParams();
   let [success, setSuccess] = useState(false);
   const [blocks, setBlocks] = useState([]);
+  const [title, setTitle] = useState("");
 
   useEffect(() => {
     axios
@@ -18,6 +19,7 @@ function CompleteSurvey() {
         console.log(response.data.all_questions);
         console.log("blocks", response.data.all_questions.Blocks[0].id);
         setBlocks(response.data.all_questions.Blocks);
+        setTitle(response.data.all_questions.title);
         console.log(blocks, "questions");
         blocks.map((block) => {
           console.log("block", block);
@@ -67,6 +69,7 @@ function CompleteSurvey() {
         <div>Success!</div>
       ) : (
         <form onSubmit={handleSubmit}>
+          <h1>{title}</h1>
           {blocks.map((block) => (
             <div key={block.id}>
               <br></br>

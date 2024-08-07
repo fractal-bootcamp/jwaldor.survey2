@@ -5,7 +5,7 @@ type SaveQuestion = { event: React.FormEvent<HTMLFormElement>; block: string };
 
 function CreateSurvey() {
   const [blocks, setBlocks] = useState<Array<Block>>([]);
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState("New survey");
   const [surveyId, setSurveyId] = useState("");
   // const editing = blocks.map();
   useEffect(() => {
@@ -44,19 +44,31 @@ function CreateSurvey() {
           })
         );
       })
-      .catch((error) => console.log("error in block creation"));
+      .catch((error) => console.log(error, "error in block creation"));
     console.log(blocks);
     // newBlocks.push({});
+  }
+  function deleteBlock(block_id: string) {
+    axios
+      .delete(`http://localhost:3000/block/${block_id}`)
+      .then((response) => {
+        console.log("blockresponse", response);
+        console.log(response.data.theblock);
+        setBlocks(blocks.filter((block) => block.blockId !== block_id));
+      })
+      .catch((error) => console.log(error, "error in block deletion"));
+    console.log(blocks);
   }
   const saveTitle: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     console.log("title", formData.get("title"));
-    setTitle(title);
+    const newTitle = formData.get("title");
+    setTitle(newTitle);
     axios
       .put("http://localhost:3000/update-survey-title", {
         id: surveyId,
-        title: title,
+        title: newTitle,
       })
       .then((response) => {
         console.log("updating title", response.data.survey.id);
@@ -125,6 +137,7 @@ function CreateSurvey() {
         <input
           name="title"
           type="text"
+          placeholder={title}
           // value={currtitle}
           // onChange={(e) => setTitle(e.target.value)}
         ></input>
@@ -150,6 +163,9 @@ function CreateSurvey() {
             ></input>
             <button data-block={block.blockId} type="submit">
               Add question
+            </button>
+            <button type="button" onClick={() => deleteBlock(block.blockId)}>
+              Delete block
             </button>
           </form>
         </div>
