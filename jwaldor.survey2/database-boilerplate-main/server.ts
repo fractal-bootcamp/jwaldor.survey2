@@ -61,7 +61,7 @@ app.get("/view-surveys", async (req: Request, res: Response) => {
 app.post("/answer-survey-questions", async (req: Request, res: Response) => {
   const question_ids = req.body.question_ids;
   const response_text: string[] = req.body.text;
-
+  console.log("req.body", req.body);
   const responses = await client.responses.createMany({
     data: response_text.map((element, index) => ({
       text: element,
@@ -86,20 +86,23 @@ app.post("/add-block", async (req: Request, res: Response) => {
 app.put("/update-block", async (req: Request, res: Response) => {
   //
   console.log("updating block");
-  const block_id = req.body.block_id;
+  const block_id = req.body.blockId;
   const deleted_questions = await client.question.deleteMany({
     where: { blockId: block_id },
   });
+  console.log("req.body", req.body);
+  console.log("new questions", req.body.new_questions);
   console.log("deleted", deleted_questions);
-  const with_block_id = req.body.new_questions.map((row: Object) => {
-    return { ...row, blockId: block_id };
-  });
+  const with_block_id = req.body.new_questions.map(
+    (row: string, index: number) => {
+      return { text: row, blockId: block_id, ordering: index };
+    }
+  );
   console.log("object saved", with_block_id);
   const new_questions = await client.question.createMany({
     data: with_block_id,
   });
   console.log("new_questions", new_questions);
-  console.log(await client.question.findMany());
   res.json({ new_questions });
 });
 
@@ -129,27 +132,23 @@ app.get("/survey-questions/:survey_id", async (req: Request, res: Response) => {
   // //{ select: { ordering: true, text: true, id: true } },
   // res.json({ Done: "done" });
 
-  const blocks = await client.block.findMany({
-    where: { surveyId: req.params.survey_id },
-  });
-  console.log(blocks);
+  // const questions = await client.question.findMany({where:{surveyId: req.params.survey_id}})
 
-  blocks.map(async (block) => {
-    const questions = await client.question.findMany({
-      where: { blockId: req.body.blockId },
-    });
-    console.log("questions", questions);
-    questions.forEach((question) => {
-      return {
-        block_order: block.ordering,
-        ordering: question.ordering,
-        question_text: question.text,
-        question_id: question.id,
-      };
-    });
+  const all_questions = await client.survey.findFirst({
+    where: { id: req.params.survey_id },
+    include: { Blocks: { include: { Question: true } } },
   });
-  console.log("blocked_questions", blocks);
-  res.json({ blocks });
+  console.log("all_questions", all_questions);
+  if (all_questions) {
+    all_questions.Blocks.sort((a, b) => a.ordering - b.ordering);
+    all_questions.Blocks.forEach((block) =>
+      block.Question.sort((a, b) => a.ordering - b.ordering)
+    );
+  } else {
+    res.json({});
+  }
+
+  res.json({ all_questions });
 });
 
 // app.get("/survey-responses/:survey_id", async (req: Request, res: Response) => {}){

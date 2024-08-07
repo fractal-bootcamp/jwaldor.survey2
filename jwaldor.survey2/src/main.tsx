@@ -5,6 +5,8 @@ import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import "./index.css";
 import Root from "./routes/root";
 import CreateSurvey from "./routes/createsurvey";
+import SurveySuccess from "./routes/surveysuccess";
+import CompleteSurvey from "./routes/completesurvey";
 
 const router = createBrowserRouter([
   {
@@ -13,6 +15,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Root /> },
       { path: "/create-survey", element: <CreateSurvey /> },
+      { path: "/complete-survey/:id", element: <CompleteSurvey /> },
+      { path: "/success", element: <SurveySuccess /> },
     ],
   },
 ]);
