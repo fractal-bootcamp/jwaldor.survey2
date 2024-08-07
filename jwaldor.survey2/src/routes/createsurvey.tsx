@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 type Block = { blockId: string; new_questions: Array<String> };
+type SaveQuestion = { event: React.FormEvent<HTMLFormElement>; block: string };
+
 function CreateSurvey() {
   const [blocks, setBlocks] = useState<Array<Block>>([]);
   const [title, setTitle] = useState("");
   const [surveyId, setSurveyId] = useState("");
+  // const editing = blocks.map();
   useEffect(() => {
     console.log("Running effect");
     axios
@@ -25,16 +28,24 @@ function CreateSurvey() {
   // }, [setTitle]);
   console.log("Create survey");
   function createBlock() {
+    console.log("creating block");
     axios
       .post("http://localhost:3000/add-block", {
         survey_id: surveyId,
         ordering: blocks.length + 1,
       })
-      .then((response) =>
+      .then((response) => {
+        console.log("blockresponse", response);
+        console.log(response.data.theblock);
         setBlocks(
-          blocks.concat({ blockId: response.data.id, new_questions: [] })
-        )
-      );
+          blocks.concat({
+            blockId: response.data.theblock.id,
+            new_questions: [],
+          })
+        );
+      })
+      .catch((error) => console.log("error in block creation"));
+    console.log(blocks);
     // newBlocks.push({});
   }
   const saveTitle: React.FormEventHandler<HTMLFormElement> = (event) => {
@@ -52,24 +63,61 @@ function CreateSurvey() {
       })
       .catch((error) => console.log(error));
   };
-
-  const saveQuestion: React.FormEventHandler<HTMLFormElement> = (event) => {
+  const saveQuestion = ({ event, block }: SaveQuestion) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    console.log(formData)
-    console.log("question", formData.get("question"));
     const newBlocks = blocks.slice();
-    newBlocks.find((element)=>element.)
-    axios
-      .put("http://localhost:3000/update-block", {
-        id: surveyId,
-        title: title,
+    const formdata = new FormData(event.currentTarget);
+    const qcontent = formdata.get("question");
+    console.log("qcontent", qcontent, typeof qcontent);
+    console.log(qcontent);
+    console.log("saveQuestion");
+    console.log("block", block);
+    console.log(
+      "new_questions",
+      typeof newBlocks,
+      newBlocks[0].new_questions,
+      typeof newBlocks[0].new_questions
+    );
+    console.log(newBlocks);
+    setBlocks(
+      newBlocks.map((element) => {
+        console.log("newBlcoks", element.blockId, block);
+        if (element.blockId === block) {
+          const mod_obj = {
+            ...element,
+            new_questions: element.new_questions.concat(qcontent),
+          };
+          axios
+            .put("http://localhost:3000/update-block", mod_obj)
+            .then((response) => {
+              console.log("updating questions", response.data.question.id);
+            })
+            .catch((error) => console.log(error));
+          return mod_obj;
+        } else {
+          return element;
+        }
       })
-      .then((response) => {
-        console.log("updating title", response.data.survey.id);
-      })
-      .catch((error) => console.log(error));
+    );
   };
+  // const saveQuestion = (block: string) => {
+  //   const newBlocks = blocks.slice();
+  //   newBlocks.map((element) =>
+  //     element.blockId === block
+  //       ? { ...element, new_questions: element.new_questions.concat("") }
+  //       : element
+  //   );
+  //   axios
+  //     .put("http://localhost:3000/update-block", {
+  //       id: surveyId,
+  //       title: title,
+  //     })
+  //     .then((response) => {
+  //       console.log("updating title", response.data.survey.id);
+  //     })
+  //     .catch((error) => console.log(error));
+  // };
+  console.log("blocks", blocks);
   return (
     <>
       <h1>Let's create a survey</h1>
@@ -85,21 +133,28 @@ function CreateSurvey() {
       {blocks.map((block: Block) => (
         <div key={block.blockId}>
           <br></br>
-          {block.new_questions.map((question) => (
-            <div>{question}</div>
-          ))}
-          <form onSubmit={saveTitle}>
+          {block.new_questions.map((question) => {
+            console.log("question", question);
+            return <div>{question}</div>;
+          })}
+          <form
+            onSubmit={(event) =>
+              saveQuestion({ event: event, block: block.blockId })
+            }
+          >
             <input
-              name="title"
+              name="question"
               type="text"
               // value={currtitle}
               // onChange={(e) => setTitle(e.target.value)}
             ></input>
-            <button data-block={block.blockId} type="submit">Add question</button>
+            <button data-block={block.blockId} type="submit">
+              Add question
+            </button>
           </form>
         </div>
       ))}
-      <button  onClick={createBlock}>Add block</button>
+      <button onClick={createBlock}>Add block</button>
     </>
   );
 }

@@ -22,11 +22,18 @@ model Question {
   Responses Responses[]
 }
 
+model SurveyResponse {
+  id        String      @id @default(cuid())
+  Responses Responses[]
+}
+
 model Responses {
-  id          String   @id @default(cuid())
-  text        String
-  question_id String
-  question    Question @relation(fields: [question_id], references: [id],onDelete:SetNull)
+  id                String         @id @default(cuid())
+  text              String
+  response_instance String
+  question_id       String?
+  instance          SurveyResponse @relation(fields: [response_instance], references: [id])
+  question          Question?      @relation(fields: [question_id], references: [id])
 }
 
 model Block {
