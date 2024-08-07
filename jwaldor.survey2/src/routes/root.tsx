@@ -10,6 +10,7 @@ function SurveyList() {
     console.log("here");
     axios.get("http://localhost:3000/view-surveys").then((response) => {
       setSurveys(response.data.survey);
+      console.log(response.data.survey);
     });
   }, []);
 
@@ -20,9 +21,14 @@ function SurveyList() {
       {surveys.map((survey: Survey) => (
         <ul>
           <li key={survey.id}>
-            <a href={`http://localhost:3000/survey-questions/${survey.id}`}>
-              {survey.title}
-            </a>
+            <a href={`complete-survey/${survey.id}`}>{survey.title}</a>
+          </li>
+        </ul>
+      ))}
+      {surveys.map((survey: Survey) => (
+        <ul>
+          <li key={survey.id}>
+            <a href={`view-results/${survey.id}`}>{survey.title}</a>
           </li>
         </ul>
       ))}
@@ -31,23 +37,36 @@ function SurveyList() {
 }
 
 export default function Root() {
+  const [surveys, setSurveys] = useState([]);
+  useEffect(() => {
+    console.log("here");
+    axios.get("http://localhost:3000/view-surveys").then((response) => {
+      setSurveys(response.data.survey);
+      console.log(response.data.survey);
+    });
+  }, []);
   return (
     <>
       <div id="sidebar">
-        <Outlet />
-        <h1>Happy Surveys!</h1>
+        <Outlet />–<h1>Happy Surveys!</h1>
+        <a href="create-survey">Create a survey!</a>
         <h1>Take a survey?</h1>
-        <SurveyList />
-        <nav>
+        {/* <SurveyList /> */}
+        {surveys.map((survey: Survey) => (
           <ul>
-            <li>
-              <a href={`/contacts/1`}>Your Name</a>
-            </li>
-            <li>
-              <a href={`/contacts/2`}>Your Friend</a>
+            <li key={survey.id}>
+              <a href={`complete-survey/${survey.id}`}>{survey.title}</a>
             </li>
           </ul>
-        </nav>
+        ))}
+        <h1>View survey results!</h1>
+        {surveys.map((survey: Survey) => (
+          <ul>
+            <li key={survey.id}>
+              <a href={`view-results/${survey.id}`}>{survey.title}</a>
+            </li>
+          </ul>
+        ))}
       </div>
       <div id="detail"></div>
     </>
