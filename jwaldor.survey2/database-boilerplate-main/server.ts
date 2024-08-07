@@ -62,8 +62,11 @@ app.post("/answer-survey-questions", async (req: Request, res: Response) => {
   const question_ids = req.body.question_ids;
   const response_text: string[] = req.body.text;
   console.log("req.body", req.body);
+  const response_instance = await client.surveyResponse.create({ data: {} });
+  console.log("response_instance", response_instance);
   const responses = await client.responses.createMany({
     data: response_text.map((element, index) => ({
+      response_instance: response_instance.id,
       text: element,
       question_id: question_ids[index],
     })),
@@ -170,6 +173,29 @@ app.delete("/block/:block_id", async (req: Request, res: Response) => {
     },
   });
   res.json({ deleteBlock, deleteQuestions });
+});
+
+app.get("/survey-results/:survey_id", async (req: Request, res: Response) => {
+  console.log("params", req.params);
+  const results = await client.survey.findFirst({
+    where: { id: req.params.survey_id },
+    include: {
+      Blocks: { include: { Question: { include: { Responses: true } } } },
+    },
+  });
+  console.log("results", results);
+  if (results) {
+    results.Blocks.sort((a, b) => a.ordering - b.ordering);
+    results.Blocks.forEach((block) => {
+      block.Question.sort((a, b) => a.ordering - b.ordering);
+      block.Question.forEach((question) =>
+        question.Responses.sort((a, b) => a.id.localeCompare(b.id))
+      );
+    });
+  } else {
+    res.json({});
+  }
+  res.json({ results });
 });
 
 // app.get("/", (req: Request, res: Response) => {
