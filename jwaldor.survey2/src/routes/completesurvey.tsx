@@ -54,7 +54,7 @@ function CompleteSurvey() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3000/survey-questions/${id}`)
+      .get(`https://jwaldor-survey2.onrender.com/survey-questions/${id}`)
       .then((response) => {
         console.log(response.data.all_questions);
         console.log("blocks", response.data.all_questions.Blocks[0].id);
@@ -95,7 +95,10 @@ function CompleteSurvey() {
     // console.log(k.next());
     // console.log(k.next());
     axios
-      .post("http://localhost:3000/answer-survey-questions", answer_obj)
+      .post(
+        "https://jwaldor-survey2.onrender.com/answer-survey-questions",
+        answer_obj
+      )
       .then((response) => {
         console.log("sent request");
         console.log(response.data);
