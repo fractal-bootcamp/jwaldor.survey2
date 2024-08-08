@@ -43,7 +43,7 @@ function ViewResults() {
   // let results: Results = { id: "", title: "", Blocks: [] };
   useEffect(() => {
     axios
-      .get(`https://jwaldor-survey2.onrender.com/survey-results/${id}`)
+      .get(`http://localhost:3000/survey-results/${id}`)
       .then((response) => {
         console.log("survey results", response);
         console.log(response.data.results);

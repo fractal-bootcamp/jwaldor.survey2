@@ -4,57 +4,17 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 // import _ from "lodash";
-// type Response = {
-//   id: string;
-//   text: string;
-//   response_instance: string;
-//   question_id: string;
-// };
-
-type Question = {
-  id: string;
-  text: string;
-  ordering: string;
-  Responses: Response[];
-};
-
-type Block = {
-  id: string;
-  ordering: string;
-  surveyId: string;
-  Question: Question[];
-};
-
-// type Results = {
-//   id: string;
-//   title: string;
-//   Blocks: Block[];
-// };
 
 function CompleteSurvey() {
   console.log(useParams());
   const { id } = useParams();
   let [success, setSuccess] = useState(false);
-  const [blocks, setBlocks] = useState<Array<Block>>([
-    {
-      id: "",
-      ordering: "",
-      surveyId: "",
-      Question: [
-        {
-          id: "",
-          text: "",
-          ordering: "",
-          Responses: [],
-        },
-      ],
-    },
-  ]);
+  const [blocks, setBlocks] = useState([]);
   const [title, setTitle] = useState("");
 
   useEffect(() => {
     axios
-      .get(`https://jwaldor-survey2.onrender.com/survey-questions/${id}`)
+      .get(`http://localhost:3000/survey-questions/${id}`)
       .then((response) => {
         console.log(response.data.all_questions);
         console.log("blocks", response.data.all_questions.Blocks[0].id);
@@ -76,18 +36,16 @@ function CompleteSurvey() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     console.log("response", formData.get("response"));
+    const k = formData.keys();
     // for (const value of formData.values()) {
     //   console.log(value);
     // }
-    const answer_obj: { question_ids: Array<string>; text: Array<string> } = {
-      question_ids: [],
-      text: [],
-    };
+    const answer_obj = { question_ids: [], text: [] };
     for (const key of formData.keys()) {
       console.log("key", key);
       console.log(formData.get(key));
       answer_obj.question_ids.push(key);
-      answer_obj.text.push(formData.get(key) as string);
+      answer_obj.text.push(formData.get(key));
       console.log(formData.get(key));
     }
     console.log("answer_obj", answer_obj);
@@ -95,10 +53,7 @@ function CompleteSurvey() {
     // console.log(k.next());
     // console.log(k.next());
     axios
-      .post(
-        "https://jwaldor-survey2.onrender.com/answer-survey-questions",
-        answer_obj
-      )
+      .post("http://localhost:3000/answer-survey-questions", answer_obj)
       .then((response) => {
         console.log("sent request");
         console.log(response.data);
