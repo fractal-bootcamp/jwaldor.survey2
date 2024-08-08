@@ -11,7 +11,9 @@ function CreateSurvey() {
   useEffect(() => {
     console.log("Running effect");
     axios
-      .post("http://localhost:3000/initialize-survey", { title: title })
+      .post("https://jwaldor-survey2.onrender.com/initialize-survey", {
+        title: title,
+      })
       .then((response) => {
         console.log("initializing survey", response.data.survey.id);
         setSurveyId(response.data.survey.id);
@@ -30,7 +32,7 @@ function CreateSurvey() {
   function createBlock() {
     console.log("creating block");
     axios
-      .post("http://localhost:3000/add-block", {
+      .post("https://jwaldor-survey2.onrender.com/add-block", {
         survey_id: surveyId,
         ordering: blocks.length + 1,
       })
@@ -50,7 +52,7 @@ function CreateSurvey() {
   }
   function deleteBlock(block_id: string) {
     axios
-      .delete(`http://localhost:3000/block/${block_id}`)
+      .delete(`https://jwaldor-survey2.onrender.com/block/${block_id}`)
       .then((response) => {
         console.log("blockresponse", response);
         console.log(response.data.theblock);
@@ -63,10 +65,10 @@ function CreateSurvey() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     console.log("title", formData.get("title"));
-    const newTitle = formData.get("title");
+    const newTitle = formData.get("title") as string;
     setTitle(newTitle);
     axios
-      .put("http://localhost:3000/update-survey-title", {
+      .put("https://jwaldor-survey2.onrender.com/update-survey-title", {
         id: surveyId,
         title: newTitle,
       })
@@ -79,7 +81,7 @@ function CreateSurvey() {
     event.preventDefault();
     const newBlocks = blocks.slice();
     const formdata = new FormData(event.currentTarget);
-    const qcontent = formdata.get("question");
+    const qcontent = formdata.get("question") as string;
     console.log("qcontent", qcontent, typeof qcontent);
     console.log(qcontent);
     console.log("saveQuestion");
@@ -100,7 +102,7 @@ function CreateSurvey() {
             new_questions: element.new_questions.concat(qcontent),
           };
           axios
-            .put("http://localhost:3000/update-block", mod_obj)
+            .put("https://jwaldor-survey2.onrender.com/update-block", mod_obj)
             .then((response) => {
               console.log("updating questions", response.data.question.id);
             })

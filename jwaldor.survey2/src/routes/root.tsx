@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
 type Survey = { id: string; title: string };
@@ -8,10 +8,12 @@ export default function Root() {
   const [surveys, setSurveys] = useState([]);
   useEffect(() => {
     console.log("here");
-    axios.get("http://localhost:3000/view-surveys").then((response) => {
-      setSurveys(response.data.survey);
-      console.log(response.data.survey);
-    });
+    axios
+      .get("https://jwaldor-survey2.onrender.com/view-surveys")
+      .then((response) => {
+        setSurveys(response.data.survey);
+        console.log(response.data.survey);
+      });
   }, []);
   return (
     <>
