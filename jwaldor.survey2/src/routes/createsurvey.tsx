@@ -63,7 +63,7 @@ function CreateSurvey() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     console.log("title", formData.get("title"));
-    const newTitle = formData.get("title");
+    const newTitle = formData.get("title") as string;
     setTitle(newTitle);
     axios
       .put("http://localhost:3000/update-survey-title", {
@@ -79,7 +79,7 @@ function CreateSurvey() {
     event.preventDefault();
     const newBlocks = blocks.slice();
     const formdata = new FormData(event.currentTarget);
-    const qcontent = formdata.get("question");
+    const qcontent = formdata.get("question") as string;
     console.log("qcontent", qcontent, typeof qcontent);
     console.log(qcontent);
     console.log("saveQuestion");
